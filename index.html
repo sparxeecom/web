@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spraxe - Coming Soon</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
     body {
       margin: 0;
@@ -14,13 +17,17 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh; /* Changed to min-height for mobile scrolling */
       text-align: center;
     }
+
     .container {
       max-width: 600px;
-      padding: 20px;
+      padding: 40px 20px;
+      width: 100%;
+      box-sizing: border-box;
     }
+
     .logo img {
       width: 110px;
       height: 110px;
@@ -29,23 +36,31 @@
       box-shadow: 0 0 18px rgba(255,255,255,0.1);
       margin-bottom: 18px;
     }
+
     h1 {
       font-size: 2.6rem;
       font-weight: 700;
       letter-spacing: 1px;
       margin: 0 0 10px;
     }
+
     .tagline {
       font-size: 1.1rem;
       opacity: 0.85;
       margin-bottom: 28px;
+      line-height: 1.5;
     }
+
+    /* Countdown Styling */
     .countdown {
       display: flex;
       justify-content: center;
-      gap: 18px;
+      flex-wrap: wrap; /* Allows wrapping on very small screens */
+      gap: 15px;
       margin-top: 20px;
+      margin-bottom: 40px;
     }
+
     .time-box {
       background: rgba(255,255,255,0.06);
       padding: 14px 20px;
@@ -53,16 +68,107 @@
       min-width: 70px;
       backdrop-filter: blur(8px);
       box-shadow: 0 0 12px rgba(0,0,0,0.3);
+      flex: 1; /* Better mobile scaling */
     }
+
     .time-box span {
       display: block;
       font-size: 1.8rem;
       font-weight: 700;
     }
+
     .label {
       font-size: 0.75rem;
       opacity: 0.75;
       margin-top: 4px;
+    }
+
+    /* New Social Icons Styling */
+    .social-icons {
+      margin-bottom: 30px;
+    }
+    
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      margin: 0 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      color: white;
+      font-size: 1.5rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    .social-btn:hover {
+      background: white;
+      transform: translateY(-3px);
+    }
+
+    .social-btn.facebook:hover { color: #1877F2; }
+    .social-btn.whatsapp:hover { color: #25D366; }
+
+    /* New Subscription Form Styling */
+    .subscribe-wrapper {
+      background: rgba(255,255,255,0.03);
+      padding: 25px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .subscribe-wrapper h3 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      flex-direction: column; /* Stack on mobile default */
+    }
+
+    @media (min-width: 480px) {
+      .input-group {
+        flex-direction: row;
+      }
+    }
+
+    input[type="email"] {
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.3);
+      color: white;
+      font-family: inherit;
+      outline: none;
+      flex-grow: 1;
+    }
+
+    button {
+      padding: 12px 25px;
+      border-radius: 8px;
+      border: none;
+      background: white;
+      color: black;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.3s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    #statusMsg {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      min-height: 20px;
     }
   </style>
 </head>
@@ -76,9 +182,29 @@
     <div class="tagline">A modern e-commerce experience for Bangladesh — launching soon.</div>
 
     <div class="countdown" id="countdown"></div>
+
+    <div class="social-icons">
+      <a href="https://www.facebook.com/spraxe/" target="_blank" class="social-btn facebook">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+      <a href="https://wa.me/8801606087761" target="_blank" class="social-btn whatsapp">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+
+    <div class="subscribe-wrapper">
+      <h3>Get Notified When We Launch</h3>
+      <div class="input-group">
+        <input type="email" id="userEmail" placeholder="Enter your email address" required>
+        <button id="notifyBtn" onclick="subscribeUser()">Notify Me</button>
+      </div>
+      <p id="statusMsg"></p>
+    </div>
   </div>
 
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
+    // --- 1. COUNTDOWN LOGIC ---
     function updateCountdown() {
       const launchDate = new Date('January 1, 2026 00:00:00').getTime();
       const now = new Date().getTime();
@@ -96,9 +222,61 @@
         <div class="time-box"><span>${seconds}</span><div class="label">Seconds</div></div>
       `;
     }
-
     updateCountdown();
     setInterval(updateCountdown, 1000);
+
+    // --- 2. SUPABASE LOGIC ---
+    // !!! IMPORTANT: REPLACE 'YOUR_ANON_KEY_HERE' WITH YOUR ACTUAL KEY !!!
+    const supabaseUrl = 'https://kybgrsqqvejbvjediowo.supabase.co'
+    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY_HERE' // <--- PASTE KEY HERE
+    
+    // Initialize client
+    let _supabase = null;
+    try {
+        _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+    } catch (e) {
+        console.error("Supabase init failed. Did you add the key?", e)
+    }
+
+    async function subscribeUser() {
+        const emailInput = document.getElementById('userEmail');
+        const email = emailInput.value;
+        const statusMsg = document.getElementById('statusMsg');
+        const btn = document.getElementById('notifyBtn');
+
+        if (!email || !email.includes('@')) {
+            statusMsg.innerText = "Please enter a valid email address.";
+            statusMsg.style.color = "#ff6b6b";
+            return;
+        }
+
+        // Change button text to indicate loading
+        btn.innerText = "Sending...";
+        btn.disabled = true;
+
+        const { data, error } = await _supabase
+            .from('subscribers')
+            .insert([{ email: email }])
+
+        if (error) {
+            console.error('Error:', error);
+            // Handle duplicate emails gracefully
+            if(error.code === '23505') {
+                 statusMsg.innerText = "You are already subscribed!";
+            } else {
+                 statusMsg.innerText = "Error: " + error.message;
+            }
+            statusMsg.style.color = "#ff6b6b";
+        } else {
+            statusMsg.innerText = "Success! You'll be notified.";
+            statusMsg.style.color = "#51cf66";
+            emailInput.value = ""; // Clear input
+        }
+
+        // Reset button
+        btn.innerText = "Notify Me";
+        btn.disabled = false;
+    }
   </script>
 </body>
 </html>
