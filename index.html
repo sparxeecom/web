@@ -17,7 +17,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh; /* Changed to min-height for mobile scrolling */
+      min-height: 100vh;
       text-align: center;
     }
 
@@ -55,7 +55,7 @@
     .countdown {
       display: flex;
       justify-content: center;
-      flex-wrap: wrap; /* Allows wrapping on very small screens */
+      flex-wrap: wrap;
       gap: 15px;
       margin-top: 20px;
       margin-bottom: 40px;
@@ -68,7 +68,7 @@
       min-width: 70px;
       backdrop-filter: blur(8px);
       box-shadow: 0 0 12px rgba(0,0,0,0.3);
-      flex: 1; /* Better mobile scaling */
+      flex: 1;
     }
 
     .time-box span {
@@ -83,7 +83,28 @@
       margin-top: 4px;
     }
 
-    /* New Social Icons Styling */
+    /* --- MOBILE SPECIFIC FIXES --- */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem; /* Smaller Title */
+      }
+      .countdown {
+        gap: 8px; /* Closer together */
+      }
+      .time-box {
+        padding: 10px 5px; /* Less padding */
+        min-width: 55px;
+        border-radius: 10px;
+      }
+      .time-box span {
+        font-size: 1.3rem; /* Much smaller numbers */
+      }
+      .label {
+        font-size: 0.6rem; /* Smaller label text */
+      }
+    }
+
+    /* Social Icons Styling */
     .social-icons {
       margin-bottom: 30px;
     }
@@ -112,7 +133,7 @@
     .social-btn.facebook:hover { color: #1877F2; }
     .social-btn.whatsapp:hover { color: #25D366; }
 
-    /* New Subscription Form Styling */
+    /* Subscription Form Styling */
     .subscribe-wrapper {
       background: rgba(255,255,255,0.03);
       padding: 25px;
@@ -129,7 +150,7 @@
     .input-group {
       display: flex;
       gap: 10px;
-      flex-direction: column; /* Stack on mobile default */
+      flex-direction: column;
     }
 
     @media (min-width: 480px) {
